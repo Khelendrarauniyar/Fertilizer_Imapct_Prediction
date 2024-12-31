@@ -3,3 +3,4 @@ requests
 google-generativeai
 secrets
 dotenv
+OpenSSL

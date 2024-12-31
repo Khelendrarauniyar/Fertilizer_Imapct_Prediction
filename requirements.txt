@@ -1,7 +1,4 @@
 flask
-pandas
-numpy
-scikit-learn
 requests
 google-generativeai
 secrets

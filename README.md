@@ -11,6 +11,7 @@ A machine learning-based web application designed to predict the impact of ferti
 ## Tech Stack
 - **Frontend:** HTML5, CSS3
 - **Backend:** Flask (Python)
+- **Data Generation:** Gemini AI(API)
 - **Machine Learning Frameworks:** Scikit-learn, NumPy, Pandas
 - **Database:** SQLite
 - **Visualization:** Matplotlib

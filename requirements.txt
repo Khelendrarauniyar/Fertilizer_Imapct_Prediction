@@ -1,7 +1,6 @@
-
+flask sqlalcheml
 flask
 pandas
 numpy
 scikit-learn
 requests
-sqlite3

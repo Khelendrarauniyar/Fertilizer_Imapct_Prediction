@@ -1,4 +1,5 @@
 flask sqlalcheml
+--upgrade pip
 flask
 pandas
 numpy

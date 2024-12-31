@@ -1,3 +1,4 @@
+--upgrade pip
 flask
 requests
 google-generativeai

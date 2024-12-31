@@ -4,6 +4,5 @@ numpy
 scikit-learn
 requests
 google-generativeai
-os
 secrets
 dotenv

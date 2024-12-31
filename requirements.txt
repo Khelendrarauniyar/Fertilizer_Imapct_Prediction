@@ -1,5 +1,3 @@
-
-pyOpenSSL
 flask
 requests
 google-generativeai

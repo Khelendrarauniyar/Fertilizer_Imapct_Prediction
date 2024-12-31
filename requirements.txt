@@ -2,4 +2,4 @@
 flask
 requests
 google-generativeai
-
+dotenv

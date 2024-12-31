@@ -1,3 +1,5 @@
+apt-get update && apt-get install -y libssl-dev build-essential
+pyOpenSSL
 flask
 requests
 google-generativeai

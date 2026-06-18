@@ -1,42 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us</title>
-    <link rel="stylesheet" href="/static/about.css"> 
-</head>
-<body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/about" class="active">About Us</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <section class="about-section">
-        <h1>About Us</h1>
+{% extends "base.html" %}
+{% block title %}{{ app_name }} | About{% endblock %}
+{% block content %}
+<section class="workspace narrow">
+    <div class="panel about-panel">
+        <p class="eyebrow">About</p>
+        <h1>{{ app_name }}</h1>
         <p>
-            Welcome to our Fertilizer Yield Prediction App! We are dedicated to helping farmers
-            and agricultural professionals optimize their crop yields through advanced technology.
-            By leveraging cutting-edge AI models and accurate data inputs, we aim to provide
-            reliable predictions for better decision-making in agriculture.
+            {{ app_name }} combines fertilizer impact prediction, crop recommendation, nutrient planning,
+            chatbot assistance, and account-based decision history in one Flask application.
         </p>
         <p>
-            Our mission is to revolutionize agriculture with innovative tools that simplify
-            complex processes. With a user-friendly interface and real-time data processing,
-            we strive to empower our users to achieve greater productivity and sustainability.
+            The app uses local agronomic scoring, stores each user's plans in SQLite, exports decisions
+            as CSV, and adds Gemini-first AI notes with Groq fallback when API keys are available.
         </p>
-        <p>
-            Thank you for trusting us on this journey toward smarter farming!
-        </p>
-    </section>
-
-    <footer>
-        <p>&copy; 2024 Fertilizer Yield Prediction. All rights reserved.</p>
-        <a href="/developer">Developer Profile</a>
-    </footer>
-</body>
-</html>
+    </div>
+</section>
+{% endblock %}

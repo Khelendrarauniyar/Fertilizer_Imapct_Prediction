@@ -1,75 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Developer Page</title>
-    <link rel="stylesheet" href="static/developer.css">
-</head>
-<body>
-    <header>
-        <h1>Developer Page</h1>
-    </header>
-
-    <main>
-        <div class="profile">
-            <img src="static/Passport_size.jpg" alt="Your Image">
-            <h2>Khelendra Rauniyar</h2>
-            <p>Full Stack Developer | ML Enthusiast</p>
-            <div class="social-links">
-                <a href="https://github.com/Khelendrarauniyar" target="_blank">GitHub</a>
-                <a href="https://www.linkedin.com/in/khelendra-rauniyar-4a0424257/" target="_blank">LinkedIn</a>
-                <a href="mailto:Khelendra71412@gmail.com">Email</a>
-            </div>
+{% extends "base.html" %}
+{% block title %}{{ app_name }} | System{% endblock %}
+{% block content %}
+<section class="workspace">
+    <div class="page-heading plain">
+        <div>
+            <p class="eyebrow">System overview</p>
+            <h1>{{ app_name }} Features</h1>
+            <p class="intro">A complete account-based farm decision platform for yield, crop, fertilizer, and AI guidance.</p>
         </div>
+    </div>
 
-        <div class="about">
-            <h3>About Me</h3>
-            <p>
-                Hi, I'm Khelendra Rauniyar, a developer passionate about creating innovative solutions. I specialize in Android 
-                development using Kotlin and Jetpack Compose, and I also work on machine learning projects and web applications 
-                with React Native. I'm always excited to take on new challenges and develop user-friendly and scalable applications.
-            </p>
-        </div>
-
-        <div class="components">
-            <h3>Used Components and Modules</h3>
-            <ul>
-                <li>Flask: For building the backend API and handling requests.</li>
-                <li>HTML/CSS: For designing the user interface of the application.</li>
-                <li>Python: For implementing the machine learning model and backend logic.</li>
-                <li>Gemini API: For data generation and impact prediction.</li>
-                <li>Pandas and NumPy: For data preprocessing and analysis.</li>
-                <li>Scikit-learn: For building and training the prediction model.</li>
-                <li>Matplotlib: For data visualization and insights presentation.</li>
-                <li>SQLite: For lightweight database management.</li>
-            </ul>
-        </div>
-
-        <div class="projects">
-            <h3>Recent Projects</h3>
-            <h4>1. Fertilizer Impact Prediction System</h4>
-            <p>
-                A web-based application that predicts the impact of fertilizers on crops using Gemini API and machine learning models. 
-                It provides data-driven insights for farmers, helping them optimize their crop yields and improve agricultural productivity.
-            </p>
-
-            <h4>2. AI Travel Planner (React Native)</h4>
-            <p>
-                A React Native application that assists users in planning their trips efficiently with location search, 
-                activity recommendations, and seamless navigation. It integrates APIs for a superior user experience.
-            </p>
-
-            <h4>3. Lung Cancer Detection</h4>
-            <p>
-                An ML based model that is used to predict the chance of being infected by lung cancer. This model is basically build by some medical parameter that is considered as the main cause for lung cancer and infections.
-            </p>
-            <h4>   And More</h4>
-        </div>
-    </main>
-
-    <footer>
-        <p>&copy; 2024 Khelendra Rauniyar. All rights reserved.</p>
-    </footer>
-</body>
-</html>
+    <div class="feature-grid feature-grid-wide">
+        <div><strong>Account Management</strong><span>Private user workspaces, secure password hashing, personal history, and CSV export.</span></div>
+        <div><strong>Yield Planning</strong><span>Field-level estimates using crop, soil, NPK, pH, rainfall, moisture, and fertilizer rate.</span></div>
+        <div><strong>Crop Advisor</strong><span>Ranks crop suitability against local soil and climate conditions.</span></div>
+        <div><strong>Fertilizer Strategy</strong><span>Recommends fertilizer type, nutrient focus, timing, and NPK gaps.</span></div>
+        <div><strong>AI Fallback Stack</strong><span>Gemini is primary for generated advice; Groq is used automatically as fallback.</span></div>
+        <div><strong>Chatbot</strong><span>Conversational farm assistant grounded in the user's latest saved field plans.</span></div>
+    </div>
+</section>
+{% endblock %}

@@ -1,80 +1,58 @@
-# Fertilizer Impact and Yield Prediction System
+# AgriNexus
 
-A machine learning-based web application designed to predict the impact of fertilizers on crop yields. This tool provides data-driven insights to help farmers optimize their crop productivity and make informed agricultural decisions.
+AgriNexus is an account-based farm decision platform for yield prediction, crop suitability, fertilizer strategy, decision history, CSV export, and AI chatbot support.
 
-## Key Features
-- **Fertilizer Impact Prediction:** Analyze the effect of different fertilizers on crop yield.
-- **User-Friendly Interface:** Intuitive and easy-to-navigate design for farmers and researchers.
-- **Real-Time Insights:** Instant predictions and suggestions based on input parameters.
-- **Data-Driven Decision Making:** Provides actionable insights for agricultural productivity.
+## Features
 
-## Tech Stack
-- **Frontend:** HTML5, CSS3
-- **Backend:** Flask (Python)
-- **Data Generation:** Gemini AI(API)
-- **Machine Learning Frameworks:** Scikit-learn, NumPy, Pandas
-- **Database:** SQLite
-- **Visualization:** Matplotlib
+- Secure user registration and login with password hashing.
+- Personal dashboard for saved field plans and account metrics.
+- Yield planner using crop, soil, NPK, pH, rainfall, moisture, weather, and fertilizer rate.
+- Crop advisor that ranks suitable crops for submitted field conditions.
+- Fertilizer advisor with nutrient gaps, timing guidance, and confidence scoring.
+- Gemini-first AI agronomy enrichment with Groq fallback.
+- Chatbot grounded in each user's recent saved field plans.
+- SQLite storage for users, predictions, and chatbot messages.
+- CSV export and JSON recommendation API.
 
-## How It Works
-1. Input crop-specific details (e.g., soil type, crop type, fertilizer type, etc.).
-2. The system processes the input using a trained machine learning model.
-3. Provides a prediction of the fertilizer's impact on crop yield.
-4. Displays actionable insights and recommendations to optimize productivity.
+## Setup
 
-## Installation and Setup
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/Khelendrarauniyar/Fertilizer_Imapct_Prediction.git
-
-Navigate to the project directory:
-
-cd Fertilizer_Imapct_Prediction
-
-Set up a virtual environment:
-
+```bash
 python -m venv env
-
-source env/bin/activate  # On Windows: .\env\Scripts\activate
-
-Install required dependencies:
-
+.\env\Scripts\activate
 pip install -r requirements.txt
+python app.py
+```
 
+Open `http://127.0.0.1:5000`.
 
-Run the Flask application:
+## Environment
 
-flask run
-Open the app in your browser at http://127.0.0.1:5000.
-Project Structure
-static/: Contains CSS and other static files.
-templates/: HTML files for rendering web pages.
-app.py: Main Flask application file.
-model/: Contains the machine learning model and related scripts.
-requirements.txt: List of dependencies for the project.
-Usage
+```text
+SECRET_KEY=replace_with_a_stable_secret
+GEMINI_API_KEY=your_gemini_key
+GROQ_API_KEY=your_groq_key
+GROQ_MODEL=llama-3.1-8b-instant
+```
 
-Farmers and agricultural researchers can use this tool to understand the potential impact of fertilizers on crops.
+Gemini is used first for AI responses. If Gemini is unavailable and `GROQ_API_KEY` is configured, AgriNexus automatically falls back to Groq. If neither key is configured, local scoring still works.
 
-Predict outcomes before applying fertilizers to minimize resource wastage.
+## API
 
-Future Enhancements
+`POST /api/recommendations`
 
-Integration with live weather data APIs for improved prediction accuracy.
-
-Support for additional machine learning models.
-
-Mobile-friendly design for wider accessibility.
-Contributing
-
-Contributions are welcome! Please fork this repository and submit a pull request with your proposed changes.
-
-License
-This project is licensed under the MIT License.
-
-Contact
-Khelendra Rauniyar
-
-GitHub
-LinkedIn
-Email: Khelendra71412@gmail.com
+```json
+{
+  "crop": "Rice",
+  "soil": "Loamy",
+  "nitrogen": 60,
+  "phosphorus": 45,
+  "potassium": 40,
+  "temperature": 24,
+  "humidity": 70,
+  "ph": 6.6,
+  "rainfall": 180,
+  "moisture": 45,
+  "fertilizer": "Organic",
+  "amount": 80
+}
+```

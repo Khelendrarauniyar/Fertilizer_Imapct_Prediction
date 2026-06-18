@@ -1,69 +1,57 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All Generated Responses</title>
-    <link rel="stylesheet" href="/static/all_response_style.css">
-</head>
-<body>
-    <header>
-        <h1>Fertilizer Impact Prediction</h1>
-        <nav>
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/about">About</a></li>
-                <li><a href="/predict">Prediction</a></li>
-                <li><a href="/all_responses" class="active">View All Predictions</a></li>
-            </ul>
-        </nav>
-    </header>
+{% extends "base.html" %}
+{% block title %}{{ app_name }} | History{% endblock %}
+{% block content %}
+<section class="workspace">
+    <div class="page-heading plain">
+        <div>
+            <p class="eyebrow">Decision history</p>
+            <h1>Saved Predictions</h1>
+        </div>
+        <a class="button secondary" href="{{ url_for('export_predictions') }}">Export CSV</a>
+    </div>
 
-    <main>
-        <section class="responses">
-            <h2>All Generated Responses</h2>
-            
-            {% if predictions %}
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>SN</th>
-                            <th>Soil</th>
-                            <th>Weather</th>
-                            <th>Fertilizer</th>
-                            <th>Amount (kg)</th>
-                            <th>Crop</th>
-                            <th>Predicted Yield, Impact And Description</th>
-                            <th>Source</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for prediction in predictions %}
-                        <tr>
-                            <td>{{loop.index}}.</td>
-                            <td>{{ prediction['soil'] }}</td>
-                            <td>{{ prediction['weather'] }}</td>
-                            <td>{{ prediction['fertilizer'] }}</td>
-                            <td>{{ prediction['amount'] }}</td>
-                            <td>{{ prediction['crop'] }}</td>
-                            <td>{{ prediction['predicted_yield'] }}</td>
-                            <td>{{ prediction['description'] }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <div class="no-data">
-                <p>No data available. Please make a prediction first.</p>
-            </div>
-            {% endif %}
-        </section>
-    </main>
+    <div class="stats-grid">
+        <div class="stat"><span>Total</span><strong>{{ metrics.total }}</strong></div>
+        <div class="stat"><span>Top Crop</span><strong>{{ metrics.top_crop }}</strong></div>
+        <div class="stat"><span>Avg Confidence</span><strong>{{ metrics.avg_confidence }}%</strong></div>
+        <div class="stat"><span>High Risk</span><strong>{{ metrics.risk_counts.get("High", 0) }}</strong></div>
+    </div>
 
-    <footer>
-        <p>&copy; 2024 Fertilizer Impact Prediction</p>
-    </footer>
-</body>
-</html>
+    <section class="panel">
+        {% if predictions %}
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Crop</th>
+                        <th>Soil</th>
+                        <th>Fertilizer</th>
+                        <th>Yield</th>
+                        <th>Risk</th>
+                        <th>Confidence</th>
+                        <th>Saved</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prediction in predictions %}
+                    <tr>
+                        <td><a href="{{ url_for('prediction_detail', prediction_id=prediction.id) }}">#{{ prediction.id }}</a></td>
+                        <td>{{ prediction.crop }}</td>
+                        <td>{{ prediction.soil }}</td>
+                        <td>{{ prediction.fertilizer }}</td>
+                           <td>{{ prediction.predicted_yield_display }}</td>
+                        <td><span class="risk {{ (prediction.risk_level or 'unrated')|lower }}">{{ prediction.risk_level or "Unrated" }}</span></td>
+                        <td>{{ prediction.confidence or 0 }}%</td>
+                        <td>{{ prediction.created_at or "-" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="muted">No saved predictions yet.</p>
+        {% endif %}
+    </section>
+</section>
+{% endblock %}

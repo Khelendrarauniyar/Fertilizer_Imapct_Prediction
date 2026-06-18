@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}{{ app_name }} | Chatbot{% endblock %}
+{% block content %}
+<section class="chat-shell">
+    <div class="chat-header">
+        <div>
+            <p class="eyebrow">AI agronomy chatbot</p>
+            <h1>Ask about your field plans</h1>
+            <p class="intro">
+                Gemini answers first when configured. Groq automatically handles fallback for fast responses.
+            </p>
+        </div>
+        <div class="provider-pills">
+            <span class="{{ 'online' if gemini_enabled else 'offline' }}">Gemini {{ "On" if gemini_enabled else "Off" }}</span>
+            <span class="{{ 'online' if groq_enabled else 'offline' }}">Groq {{ "On" if groq_enabled else "Off" }}</span>
+        </div>
+    </div>
+
+    {% if error %}
+    <div class="alert error">{{ error }}</div>
+    {% endif %}
+
+    <section class="chat-panel">
+        <div class="chat-messages">
+            {% if messages %}
+            {% for message in messages %}
+            <article class="chat-message {{ message.role }}">
+                <div>
+                    <strong>{{ "You" if message.role == "user" else app_name }}</strong>
+                    {% if message.provider %}<span>{{ message.provider }}</span>{% endif %}
+                </div>
+                <p>{{ message.display_message }}</p>
+            </article>
+            {% endfor %}
+            {% else %}
+            <div class="empty-chat">
+                <h2>Ready for a field question</h2>
+                <p>Ask about fertilizer timing, crop choice, risk level, or how to interpret a saved plan.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <form class="chat-form" method="POST">
+            <input type="text" name="message" placeholder="Ask: What should I improve before sowing rice?" required>
+            <button type="submit">Send</button>
+        </form>
+    </section>
+</section>
+{% endblock %}

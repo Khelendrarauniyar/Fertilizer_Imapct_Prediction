@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{ app_name }} | {{ "Register" if mode == "register" else "Login" }}{% endblock %}
+{% block content %}
+<section class="auth-shell">
+    <div class="auth-visual">
+        <p class="eyebrow">Secure farm workspace</p>
+        <h1>{{ "Create your account" if mode == "register" else "Welcome back" }}</h1>
+        <p>
+            Manage field plans, chatbot conversations, recommendation history, and exports from one
+            private dashboard.
+        </p>
+        <div class="mini-metrics">
+            <span>Yield plans</span>
+            <span>Crop fit</span>
+            <span>AI advisor</span>
+        </div>
+    </div>
+
+    <form class="auth-card" method="POST">
+        <p class="eyebrow">{{ "Register" if mode == "register" else "Login" }}</p>
+        <h2>{{ "Start managing fields" if mode == "register" else "Access your workspace" }}</h2>
+        {% if error %}
+        <div class="alert error">{{ error }}</div>
+        {% endif %}
+        {% if mode == "register" %}
+        <label>Name
+            <input type="text" name="name" autocomplete="name" required>
+        </label>
+        <label>Farm Name
+            <input type="text" name="farm_name" autocomplete="organization">
+        </label>
+        <label>Location
+            <input type="text" name="location" autocomplete="address-level2">
+        </label>
+        {% endif %}
+        <label>Email
+            <input type="email" name="email" autocomplete="email" required>
+        </label>
+        <label>Password
+            <input type="password" name="password" autocomplete="{{ 'new-password' if mode == 'register' else 'current-password' }}" required>
+        </label>
+        <button type="submit">{{ "Create Account" if mode == "register" else "Login" }}</button>
+        {% if mode == "register" %}
+        <p class="muted">Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+        {% else %}
+        <p class="muted">New here? <a href="{{ url_for('register') }}">Create an account</a></p>
+        {% endif %}
+    </form>
+</section>
+{% endblock %}

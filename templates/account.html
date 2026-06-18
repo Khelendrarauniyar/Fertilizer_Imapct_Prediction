@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ app_name }} | Account{% endblock %}
+{% block content %}
+<section class="workspace">
+    <div class="account-hero">
+        <div>
+            <p class="eyebrow">Account management</p>
+            <h1>{{ user.name }}</h1>
+            <p class="intro">
+                {{ user.farm_name or "Farm workspace" }}{% if user.location %} · {{ user.location }}{% endif %}
+            </p>
+        </div>
+        <div class="account-actions">
+            <a class="button" href="{{ url_for('index') }}">New Plan</a>
+            <a class="button secondary" href="{{ url_for('chat') }}">Open Chatbot</a>
+            <a class="button secondary" href="{{ url_for('export_predictions') }}">Export CSV</a>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat"><span>Saved Plans</span><strong>{{ metrics.total }}</strong></div>
+        <div class="stat"><span>Top Crop</span><strong>{{ metrics.top_crop }}</strong></div>
+        <div class="stat"><span>Avg Confidence</span><strong>{{ metrics.avg_confidence }}%</strong></div>
+        <div class="stat"><span>Chat Messages</span><strong>{{ chat_count }}</strong></div>
+    </div>
+
+    <div class="layout-grid">
+        <section class="panel">
+            <div class="section-heading">
+                <p class="eyebrow">Recent work</p>
+                <h2>Field Decisions</h2>
+            </div>
+            {% if metrics.recent %}
+            <div class="recent-list">
+                {% for item in metrics.recent %}
+                <a href="{{ url_for('prediction_detail', prediction_id=item.id) }}">
+                    <span>{{ item.crop }} on {{ item.soil }}</span>
+                        <strong>{{ item.predicted_yield_display }}</strong>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="muted">No saved plans yet.</p>
+            {% endif %}
+        </section>
+
+        <aside class="panel">
+            <div class="section-heading">
+                <p class="eyebrow">Profile</p>
+                <h2>Workspace Details</h2>
+            </div>
+            <dl class="detail-list">
+                <div><dt>Email</dt><dd>{{ user.email }}</dd></div>
+                <div><dt>Farm</dt><dd>{{ user.farm_name or "Not set" }}</dd></div>
+                <div><dt>Location</dt><dd>{{ user.location or "Not set" }}</dd></div>
+                <div><dt>Joined</dt><dd>{{ user.created_at }}</dd></div>
+            </dl>
+        </aside>
+    </div>
+</section>
+{% endblock %}

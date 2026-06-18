@@ -1,87 +1,147 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fertilizer Impact Prediction</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-    <header>
-        <h1>Fertilizer Impact Prediction</h1>
-        <nav>
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/about">About</a></li>
-                <li><a href="/predict">Prediction</a></li>
-                <li><a href="/all_responses">View All Predictions</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <form action="/predict" method="POST">
-        <fieldset>
-            <legend>Enter Details for Prediction</legend>
-            
-            <label for="soil">Soil Type</label>
-            <select name="soil" id="soil" required>
-                <option value="" disabled selected>Select Soil Type</option>
-                <option value="Loamy">Loamy</option>
-                <option value="Sandy">Sandy</option>
-                <option value="Clay">Clay</option>
-                <option value="Silty">Silty</option>
-                <option value="Peaty">Peaty</option>
-            </select>
-
-            <label for="weather">Weather Condition</label>
-            <select name="weather" id="weather" required>
-                <option value="" disabled selected>Select Weather</option>
-                <option value="Sunny">Sunny</option>
-                <option value="Rainy">Rainy</option>
-                <option value="Cloudy">Cloudy</option>
-                <option value="Windy">Windy</option>
-                <option value="Humid">Humid</option>
-            </select>
-
-            <label for="fertilizer">Fertilizer Type</label>
-            <select name="fertilizer" id="fertilizer" required>
-                <option value="" disabled selected>Select Fertilizer Type</option>
-                <option value="Nitrogen-based">Nitrogen-based</option>
-                <option value="Phosphorus-based">Phosphorus-based</option>
-                <option value="Potassium-based">Potassium-based</option>
-                <option value="Organic">Organic</option>
-                <option value="Composite">Composite</option>
-            </select>
-
-            <label for="amount">Fertilizer Amount (kg)</label>
-            <input type="number" name="amount" id="amount" min="1" step="0.1" placeholder="Enter amount in kg/ha" required >
-
-            <label for="crop">Crop Type</label>
-            <select name="crop" id="crop" required>
-                <option value="" disabled selected>Select Crop Type</option>
-                <option value="Wheat">Wheat</option>
-                <option value="Rice">Rice</option>
-                <option value="Corn">Corn</option>
-                <option value="Soybean">Soybean</option>
-                <option value="Cotton">Cotton</option>
-            </select>
-
-            <button type="submit">Predict</button>
-        </fieldset>
-    </form>
-
-    {% if result %}
-    <div class="results">
-        <h3>Prediction Results:</h3>
-        <p><strong>Predicted Yield and Fertilizer Effect:</strong> {{ result['yield'] }}</p>
-        <p><strong>Generated Source:</strong> {{ result['description'] }}</p>
-        <a href="/prediction">Click here for more details</a>
+{% extends "base.html" %}
+{% block title %}{{ app_name }} | Yield Planner{% endblock %}
+{% block content %}
+<section class="workspace">
+    <div class="hero-panel">
+        <div>
+            <p class="eyebrow">Farm decision workspace</p>
+            <h1>{{ app_name }}</h1>
+            <p class="intro">
+                Estimate yield, compare fertilizer fit, rank crop options, and manage field decisions
+                inside a private farm workspace.
+            </p>
+            <div class="hero-badges">
+                <span>Gemini {{ "primary" if gemini_enabled else "not configured" }}</span>
+                <span>Groq {{ "fallback ready" if groq_enabled else "fallback optional" }}</span>
+                <span>Account history</span>
+            </div>
+        </div>
+        <img src="{{ url_for('static', filename='images/field-advisory.jpg') }}" alt="Field advisory">
     </div>
-    {% elif error %}
-    <div class="error">
-        <h3>Error:</h3>
-        <p>{{ error }}</p>
+
+    <div class="stats-grid">
+        <div class="stat">
+            <span>Total Plans</span>
+            <strong>{{ metrics.total }}</strong>
+        </div>
+        <div class="stat">
+            <span>Most Planned Crop</span>
+            <strong>{{ metrics.top_crop }}</strong>
+        </div>
+        <div class="stat">
+            <span>Average Confidence</span>
+            <strong>{{ metrics.avg_confidence }}%</strong>
+        </div>
+        <div class="stat">
+            <span>AI Enrichment</span>
+            <strong>{% if gemini_enabled %}Gemini{% elif groq_enabled %}Groq{% else %}Local{% endif %}</strong>
+        </div>
+    </div>
+
+    {% if not current_user %}
+    <div class="alert notice split-notice">
+        <span>Create an account to save plans, export history, and use the farm chatbot.</span>
+        <a href="{{ url_for('register') }}">Start free</a>
     </div>
     {% endif %}
-</body>
-</html>
+
+    {% if error %}
+    <div class="alert error">{{ error }}</div>
+    {% endif %}
+
+    <div class="layout-grid">
+        <section class="panel">
+            <div class="section-heading">
+                <p class="eyebrow">Yield planner</p>
+                <h2>Field Inputs</h2>
+            </div>
+            <form action="{{ url_for('predict') }}" method="POST" class="form-grid">
+                <label>Crop
+                    <select name="crop" required>
+                        {% for crop in crops %}
+                        <option value="{{ crop }}">{{ crop }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>Soil
+                    <select name="soil" required>
+                        {% for soil in soils %}
+                        <option value="{{ soil }}">{{ soil }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>Observed Weather
+                    <select name="weather" required>
+                        <option>Sunny</option>
+                        <option>Cloudy</option>
+                        <option>Rainy</option>
+                        <option>Humid</option>
+                        <option>Windy</option>
+                    </select>
+                </label>
+                <label>Current Fertilizer
+                    <select name="fertilizer" required>
+                        {% for fertilizer in fertilizers %}
+                        <option value="{{ fertilizer }}">{{ fertilizer }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>Fertilizer Rate (kg/ha)
+                    <input type="number" name="amount" min="0" max="1000" step="0.1" value="80" required>
+                </label>
+                <label>Nitrogen (N)
+                    <input type="number" name="nitrogen" min="0" max="250" step="0.1" value="60" required>
+                </label>
+                <label>Phosphorus (P)
+                    <input type="number" name="phosphorus" min="0" max="250" step="0.1" value="45" required>
+                </label>
+                <label>Potassium (K)
+                    <input type="number" name="potassium" min="0" max="250" step="0.1" value="40" required>
+                </label>
+                <label>Soil pH
+                    <input type="number" name="ph" min="3" max="10" step="0.1" value="6.6" required>
+                </label>
+                <label>Temperature (C)
+                    <input type="number" name="temperature" min="-5" max="60" step="0.1" value="24" required>
+                </label>
+                <label>Humidity (%)
+                    <input type="number" name="humidity" min="0" max="100" step="0.1" value="70" required>
+                </label>
+                <label>Rainfall (mm)
+                    <input type="number" name="rainfall" min="0" max="500" step="0.1" value="180" required>
+                </label>
+                <label>Soil Moisture (%)
+                    <input type="number" name="moisture" min="0" max="100" step="0.1" value="45" required>
+                </label>
+                <div class="form-actions">
+                    <button type="submit">Generate Plan</button>
+                </div>
+            </form>
+        </section>
+
+        <aside class="panel side-panel">
+            <div class="section-heading">
+                <p class="eyebrow">Recent plans</p>
+                <h2>Saved Decisions</h2>
+            </div>
+            {% if metrics.recent %}
+            <div class="recent-list">
+                {% for item in metrics.recent %}
+                <a href="{{ url_for('prediction_detail', prediction_id=item.id) }}">
+                    <span>{{ item.crop }} on {{ item.soil }}</span>
+                        <strong>{{ item.predicted_yield_display }}</strong>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="muted">No saved plans yet.</p>
+            {% endif %}
+            <div class="quick-links">
+                <a href="{{ url_for('crop_recommendation') }}">Find best crops</a>
+                <a href="{{ url_for('fertilizer_recommend') }}">Recommend fertilizer</a>
+                <a href="{{ url_for('export_predictions') }}">Export CSV</a>
+            </div>
+        </aside>
+    </div>
+</section>
+{% endblock %}

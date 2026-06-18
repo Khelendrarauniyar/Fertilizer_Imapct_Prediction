@@ -1,17 +1,84 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prediction Result</title>
-    <link rel="stylesheet" href="/static/prediction_style.css">
-</head>
-<body>
-    <h1>Prediction Result</h1>
-    <p><strong>Predicted Yield:</strong> {{ result['yield'] }} tons/ha</p>
-    
-    <h2>Proper Formatted Result/Output:</h2>
-    <pre>{{ result['raw_response'] }}</pre>
-    <a href="/" class="button">Generate New Result</a>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}{{ app_name }} | Plan {{ prediction.id }}{% endblock %}
+{% block content %}
+<section class="workspace">
+    <div class="page-heading plain">
+        <div>
+            <p class="eyebrow">Saved field plan</p>
+            <h1>{{ prediction.crop }} on {{ prediction.soil }} soil</h1>
+        </div>
+        <a class="button secondary" href="{{ url_for('index') }}">New Plan</a>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat">
+            <span>Yield Range</span>
+               <strong>{{ prediction.predicted_yield_display }}</strong>
+        </div>
+        <div class="stat">
+            <span>Risk</span>
+            <strong>{{ prediction.risk_level or "Unrated" }}</strong>
+        </div>
+        <div class="stat">
+            <span>Confidence</span>
+            <strong>{{ prediction.confidence or 0 }}%</strong>
+        </div>
+        <div class="stat">
+            <span>Fertilizer</span>
+            <strong>{{ prediction.fertilizer }}</strong>
+        </div>
+    </div>
+
+    <div class="layout-grid">
+        <section class="panel">
+            <div class="section-heading">
+                <p class="eyebrow">Action plan</p>
+                <h2>Recommended Next Steps</h2>
+            </div>
+            {% set rec = prediction.recommendation_data %}
+            {% if rec.yield %}
+            <p class="lead">{{ rec.yield.summary }}</p>
+            <ul class="action-list">
+                {% for action in rec.yield.actions %}
+                <li>{{ action }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+
+            {% if rec.fertilizer %}
+            <div class="sub-panel">
+                <h3>{{ rec.fertilizer.fertilizer }} fertilizer plan</h3>
+                <p>{{ rec.fertilizer.summary }}</p>
+                <p class="muted">{{ rec.fertilizer.timing }}</p>
+            </div>
+            {% endif %}
+        </section>
+
+        <aside class="panel">
+            <div class="section-heading">
+                <p class="eyebrow">Field snapshot</p>
+                <h2>Inputs</h2>
+            </div>
+            <dl class="detail-list">
+                <div><dt>NPK</dt><dd>{{ prediction.nitrogen }}/{{ prediction.phosphorus }}/{{ prediction.potassium }}</dd></div>
+                <div><dt>pH</dt><dd>{{ prediction.ph }}</dd></div>
+                <div><dt>Temperature</dt><dd>{{ prediction.temperature }} C</dd></div>
+                <div><dt>Humidity</dt><dd>{{ prediction.humidity }}%</dd></div>
+                <div><dt>Rainfall</dt><dd>{{ prediction.rainfall }} mm</dd></div>
+                <div><dt>Moisture</dt><dd>{{ prediction.moisture }}%</dd></div>
+                <div><dt>Rate</dt><dd>{{ prediction.amount }} kg/ha</dd></div>
+            </dl>
+        </aside>
+    </div>
+
+    {% if prediction.raw_response %}
+    <section class="panel">
+        <div class="section-heading">
+            <p class="eyebrow">AI note</p>
+            <h2>Enrichment</h2>
+        </div>
+        <pre class="response-box">{{ prediction.raw_response }}</pre>
+    </section>
+    {% endif %}
+</section>
+{% endblock %}

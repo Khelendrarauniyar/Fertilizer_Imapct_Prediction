@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ app_name }}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="{{ url_for('index') }}">
+            <span class="brand-mark">AN</span>
+            <span>{{ app_name }}</span>
+        </a>
+        <nav class="nav">
+            <a href="{{ url_for('index') }}">Yield Planner</a>
+            <a href="{{ url_for('crop_recommendation') }}">Crop Advisor</a>
+            <a href="{{ url_for('fertilizer_recommend') }}">Fertilizer</a>
+            {% if current_user %}
+            <a href="{{ url_for('chat') }}">Chatbot</a>
+            <a href="{{ url_for('all_responses') }}">History</a>
+            <a href="{{ url_for('account') }}">Account</a>
+            <a class="nav-cta" href="{{ url_for('logout') }}">Logout</a>
+            {% else %}
+            <a href="{{ url_for('login') }}">Login</a>
+            <a class="nav-cta" href="{{ url_for('register') }}">Register</a>
+            {% endif %}
+            <a href="{{ url_for('about') }}">About</a>
+        </nav>
+    </header>
+
+    <main>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="flash-stack">
+            {% for message in messages %}
+            <div class="alert notice">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <span>{{ app_name }} field intelligence</span>
+        <a href="{{ url_for('developer') }}">Developer</a>
+    </footer>
+</body>
+</html>

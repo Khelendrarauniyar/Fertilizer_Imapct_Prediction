@@ -175,3 +175,6 @@ uploads/
 
 # Database (local development)
 fertilizer.db
+
+.external
+external

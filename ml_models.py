@@ -1,8 +1,6 @@
 import os
 import pickle
 import numpy as np
-from tensorflow.keras.preprocessing.image import load_img
-from tensorflow.keras.models import load_model
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 MODEL_DIR = os.path.join(BASE_DIR, "models", "ML_models")
@@ -141,12 +139,16 @@ def get_diseases_classes(crop, prediction):
 
 
 def img_predict(path, crop):
+    # Lazy import tensorflow to avoid protobuf conflict with google-generativeai
+    from tensorflow.keras.models import load_model
+    from PIL import Image as PILImage
+
     model_path = os.path.join(BASE_DIR, 'models', 'DL_models', f'{crop}_model.h5')
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"No DL model for crop '{crop}'")
     model = load_model(model_path, compile=False)
-    data = load_img(path, target_size=(224, 224, 3))
-    data = np.asarray(data).reshape((-1, 224, 224, 3))
+    img = PILImage.open(path).resize((224, 224))
+    data = np.asarray(img).reshape((-1, 224, 224, 3))
     data = data * 1.0 / 255
     if hasattr(model, 'predict'):
         p = model.predict(data)[0]

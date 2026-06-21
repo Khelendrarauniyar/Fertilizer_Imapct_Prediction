@@ -1,0 +1,162 @@
+/* Disease Prediction Page Styles */
+.disease-layout {
+  display: grid;
+  gap: 24px;
+}
+
+.disease-upload-area {
+  display: grid;
+  gap: 18px;
+  padding: 32px;
+  text-align: center;
+  background: var(--surface);
+  border: 2px dashed rgba(76, 101, 85, 0.24);
+  border-radius: var(--radius-xl);
+  transition: border-color 220ms ease, background 220ms ease;
+}
+
+.disease-upload-area:hover,
+.disease-upload-area.dragover {
+  border-color: var(--green);
+  background: rgba(46, 125, 87, 0.04);
+}
+
+.disease-upload-area .upload-icon {
+  font-size: 3rem;
+  opacity: 0.6;
+  margin-bottom: 8px;
+}
+
+.disease-upload-area input[type="file"] {
+  width: auto;
+  margin: 0 auto;
+  min-height: auto;
+  padding: 12px 20px;
+  border: 1px solid rgba(76, 101, 85, 0.16);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+}
+
+.disease-upload-area input[type="file"]::file-selector-button {
+  min-height: 36px;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: #fff;
+  background: linear-gradient(135deg, var(--green), #47956f);
+  font-weight: 700;
+  cursor: pointer;
+  margin-right: 12px;
+}
+
+.disease-upload-area input[type="file"]::file-selector-button:hover {
+  background: linear-gradient(135deg, var(--green-dark), #246545);
+}
+
+.disease-preview {
+  max-width: 420px;
+  max-height: 360px;
+  margin: 0 auto;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(76, 101, 85, 0.16);
+  box-shadow: var(--shadow);
+  object-fit: contain;
+  background: #fff;
+}
+
+.disease-result-card {
+  display: grid;
+  gap: 16px;
+  padding: 28px;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid rgba(76, 101, 85, 0.16);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-strong);
+}
+
+.disease-result-card .result-label {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.disease-result-card .disease-name {
+  font-size: clamp(1.4rem, 3vw, 2.2rem);
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.disease-result-card .disease-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 auto;
+  padding: 10px 24px;
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+.disease-result-card .disease-status.healthy {
+  color: var(--green-dark);
+  background: rgba(228, 243, 231, 0.96);
+}
+
+.disease-result-card .disease-status.diseased {
+  color: #7a1f1f;
+  background: rgba(255, 227, 227, 0.96);
+}
+
+.crop-select-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+.crop-select-grid label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid rgba(76, 101, 85, 0.16);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+  font-weight: 700;
+  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+
+.crop-select-grid label:hover {
+  border-color: var(--green);
+  background: rgba(46, 125, 87, 0.06);
+  transform: translateY(-2px);
+}
+
+.crop-select-grid input[type="radio"] {
+  display: none;
+}
+
+.crop-select-grid input[type="radio"]:checked + span {
+  color: var(--green-dark);
+}
+
+.crop-select-grid input[type="radio"]:checked ~ label,
+.crop-select-grid label:has(input[type="radio"]:checked) {
+  border-color: var(--green);
+  background: rgba(46, 125, 87, 0.10);
+  box-shadow: 0 0 0 3px rgba(46, 125, 87, 0.12);
+}
+
+@media (max-width: 640px) {
+  .crop-select-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{{ app_name }} | Crop Disease Detection{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='disease_style.css') }}">
+{% endblock %}
+{% block content %}
+<section class="workspace narrow">
+    <div class="page-heading plain">
+        <div>
+            <p class="eyebrow">Deep learning diagnosis</p>
+            <h1>Crop Disease Detection</h1>
+            <p class="lead">
+                Upload a leaf photo to detect diseases using trained deep learning models.
+                Supported crops: <strong>{{ crops|join(", ") }}</strong>
+            </p>
+        </div>
+    </div>
+
+    {% if error %}
+    <div class="alert error">{{ error }}</div>
+    {% endif %}
+
+    <div class="disease-layout">
+        <form method="POST" enctype="multipart/form-data" class="disease-upload-area">
+            <div class="upload-icon">🌿</div>
+            <p class="muted">Select the crop type and upload a clear leaf image</p>
+
+            <div>
+                <p class="eyebrow" style="margin-bottom:12px;">Select Crop</p>
+                <div class="crop-select-grid">
+                    {% for crop in crops %}
+                    <label>
+                        <input type="radio" name="crop" value="{{ crop }}" required>
+                        <span>{{ crop|title }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <input type="file" name="file" accept="image/*" required>
+
+            <button type="submit" style="width:auto;margin:0 auto;padding:12px 40px;">
+                Detect Disease
+            </button>
+        </form>
+
+        {% if result %}
+        <div class="disease-result-card">
+            <span class="result-label">Diagnosis Result</span>
+            <div class="disease-name">{{ result }}</div>
+            {% if result.lower() == "healthy" %}
+            <div class="disease-status healthy">✅ Healthy Crop</div>
+            {% else %}
+            <div class="disease-status diseased">⚠️ Disease Detected</div>
+            {% endif %}
+            {% if image_file %}
+            <img class="disease-preview" src="{{ url_for('uploaded_file', filename=image_file) }}"
+                 alt="Uploaded leaf image">
+            {% endif %}
+            <a class="button secondary" href="{{ url_for('crop_disease') }}">Analyze Another</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

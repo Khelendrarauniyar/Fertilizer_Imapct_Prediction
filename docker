@@ -16,8 +16,8 @@ COPY . /app
 # Install the required Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose port 80 (optional, based on your app's requirements)
-EXPOSE 80
+# Expose port 5000 (Flask default)
+EXPOSE 5000
 
-# Set the command to run your application
+# Run with host 0.0.0.0 so it's reachable outside the container
 CMD ["python", "app.py"]

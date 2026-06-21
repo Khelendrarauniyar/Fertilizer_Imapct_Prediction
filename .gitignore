@@ -169,3 +169,9 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Uploaded images (crop disease detection)
+uploads/
+
+# Database (local development)
+fertilizer.db

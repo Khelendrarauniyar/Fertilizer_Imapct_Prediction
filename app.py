@@ -25,6 +25,11 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
+# Workaround for protobuf/tensorflow compatibility in dev environments
+import os as _os_for_proto
+if not _os_for_proto.environ.get("PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"):
+    _os_for_proto.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
+
 try:
     from dotenv import load_dotenv
 except ImportError:
@@ -57,6 +62,12 @@ if GEMINI_API_KEY:
     except ImportError:
         GEMINI_MODEL = None
 
+# Optional local ML model integration (AgriGo artifacts)
+try:
+    import ml_models
+    ML_MODELS_AVAILABLE = True
+except Exception:
+    ML_MODELS_AVAILABLE = False
 
 FEATURES = ["N", "P", "K", "temperature", "humidity", "ph", "rainfall"]
 SOIL_TYPES = ["Black", "Clayey", "Loamy", "Red", "Sandy", "Silty", "Peaty"]
@@ -472,6 +483,51 @@ def fertilizer_recommendation(inputs):
             f"{inputs['soil']} soil, mainly for {', '.join(limiting)}."
         ),
     }
+
+
+def fertilizer_recommendation_with_ml(inputs):
+    # try ML model first if available
+    if 'ml_models' in globals() and hasattr(ml_models, 'get_fertilizer_recommendation_ml'):
+        try:
+            # AgriGo expects numeric features in order: temperature, humidity, moisture, N, P, K
+            num_feats = [
+                inputs['temperature'],
+                inputs['humidity'],
+                inputs['moisture'],
+                inputs['N'],
+                inputs['P'],
+                inputs['K'],
+            ]
+            # map categorical selections to indices used by AgriGo model
+            soil_val = inputs.get('soil', '')
+            crop_val = inputs.get('crop', '')
+            try:
+                soil_index = next(i for i, s in enumerate(SOIL_TYPES) if s.lower() == str(soil_val).lower())
+            except StopIteration:
+                soil_index = 0
+            try:
+                crop_index = next(i for i, c in enumerate(CROP_TYPES) if c.lower() == str(crop_val).lower())
+            except StopIteration:
+                crop_index = 0
+            cat_feats = [soil_index, crop_index]
+            pred = ml_models.get_fertilizer_recommendation_ml(num_feats, cat_feats)
+            # map pred index back to class name if possible (use existing FERTILIZER_GUIDE keys or fallback)
+            if isinstance(pred, (int, float)):
+                classes = list(FERTILIZER_GUIDE.keys())
+                idx = int(pred) % len(classes)
+                fertilizer = classes[idx]
+                guide = FERTILIZER_GUIDE.get(fertilizer, FERTILIZER_GUIDE['Organic'])
+                return {
+                    'fertilizer': fertilizer,
+                    'confidence': 78.0,
+                    'focus': guide['focus'],
+                    'timing': guide['timing'],
+                    'nutrient_gaps': {},
+                    'summary': f"{fertilizer} predicted by local ML model",
+                }
+        except Exception:
+            pass
+    return fertilizer_recommendation(inputs)
 
 
 def suitability_for_crop(crop, inputs):
@@ -946,7 +1002,7 @@ def predict():
     try:
         inputs = prediction_payload(request.form)
         local_plan = local_yield_plan(inputs)
-        fertilizer_plan = fertilizer_recommendation(inputs)
+        fertilizer_plan = fertilizer_recommendation_with_ml(inputs)
         crop_plan = crop_recommendations(inputs, limit=3)
         raw_response = ai_enrichment(inputs, local_plan, fertilizer_plan)
         prediction_id = store_prediction(
@@ -988,7 +1044,13 @@ def crop_recommendation():
                 "ph": parse_float(request.form.get("ph"), "Soil pH", 3, 10),
                 "rainfall": parse_float(request.form.get("rainfall"), "Rainfall", 0, 500),
             }
-            result = crop_recommendations(inputs)
+            if ML_MODELS_AVAILABLE:
+                try:
+                    result = ml_models.get_crop_recommendation_ml(inputs)
+                except Exception:
+                    result = crop_recommendations(inputs)
+            else:
+                result = crop_recommendations(inputs)
         except ValueError as exc:
             error = str(exc)
     return render_template("crop_recommend.html", app_name=APP_NAME, result=result, error=error)
@@ -1012,7 +1074,7 @@ def fertilizer_recommend():
             }
             if not inputs["soil"] or not inputs["crop"]:
                 raise ValueError("Soil and crop are required.")
-            result = fertilizer_recommendation(inputs)
+            result = fertilizer_recommendation_with_ml(inputs)
         except ValueError as exc:
             error = str(exc)
     return render_template(
@@ -1152,6 +1214,49 @@ def api_chat():
     reply, provider = chatbot_reply(session["user_id"], message)
     save_chat_message(session["user_id"], "assistant", reply, provider)
     return jsonify({"reply": reply, "provider": provider})
+
+
+@app.route("/crop-disease", methods=["GET", "POST"])
+def crop_disease():
+    result = None
+    error = None
+    image_file = None
+    if request.method == "POST":
+        crop = request.form.get("crop", "").strip().lower()
+        if not crop:
+            error = "Please select a crop type."
+        elif "file" not in request.files or not request.files["file"].filename:
+            error = "Please upload a leaf image."
+        else:
+            file = request.files["file"]
+            try:
+                from werkzeug.utils import secure_filename
+                upload_dir = os.path.join(app.root_path, "uploads")
+                os.makedirs(upload_dir, exist_ok=True)
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(upload_dir, filename)
+                file.save(file_path)
+                prediction_index = ml_models.img_predict(file_path, crop)
+                result = ml_models.get_diseases_classes(crop, prediction_index)
+                image_file = filename
+            except FileNotFoundError as exc:
+                error = f"No disease model available for '{crop}'. Supported crops: {', '.join(ml_models.CROP_DISEASE_LIST)}"
+            except Exception as exc:
+                error = f"Prediction error: {exc}"
+    return render_template(
+        "crop_disease.html",
+        app_name=APP_NAME,
+        crops=ml_models.CROP_DISEASE_LIST,
+        result=result,
+        image_file=image_file,
+        error=error,
+    )
+
+
+@app.route("/uploads/<filename>")
+def uploaded_file(filename):
+    from flask import send_from_directory
+    return send_from_directory(os.path.join(app.root_path, "uploads"), filename)
 
 
 @app.route("/about")
